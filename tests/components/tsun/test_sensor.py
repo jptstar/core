@@ -1,0 +1,48 @@
+"""Tests for TSUN sensors."""
+
+from unittest.mock import AsyncMock
+
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers import entity_registry as er
+
+from tests.common import MockConfigEntry
+
+from .conftest import LOGGER_SN
+
+
+async def test_sensors(
+    hass: HomeAssistant,
+    mock_config_entry: MockConfigEntry,
+    mock_tsun_client: AsyncMock,
+) -> None:
+    """Test measurement entities and stable unique IDs."""
+    mock_config_entry.add_to_hass(hass)
+    assert await hass.config_entries.async_setup(mock_config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    registry = er.async_get(hass)
+    entity = registry.async_get_entity_id(
+        "sensor", "tsun", f"{LOGGER_SN}_ac_power"
+    )
+    assert entity is not None
+    assert hass.states[entity].state == "1200.0"
+
+    pv6 = registry.async_get_entity_id(
+        "sensor", "tsun", f"{LOGGER_SN}_pv6_energy_total"
+    )
+    assert pv6 is not None
+    assert hass.states[pv6].state == "75.0"
+
+    entries = er.async_entries_for_config_entry(registry, mock_config_entry.entry_id)
+    assert len(entries) == 62
+
+    online = registry.async_get_entity_id(
+        "binary_sensor", "tsun", f"{LOGGER_SN}_online"
+    )
+    assert online is not None
+    assert hass.states[online].state == "on"
+
+    refresh = registry.async_get_entity_id(
+        "button", "tsun", f"{LOGGER_SN}_refresh_data"
+    )
+    assert refresh is not None
