@@ -1,7 +1,5 @@
 """Button entities for TSUN micro-inverters."""
 
-from __future__ import annotations
-
 from typing import override
 
 from homeassistant.components.button import ButtonEntity
@@ -31,6 +29,7 @@ class TsunRefreshButton(TsunEntity, ButtonEntity):
     def __init__(
         self, coordinator: TsunDataUpdateCoordinator, entry: TsunConfigEntry
     ) -> None:
+        """Initialize the refresh button."""
         super().__init__(coordinator, entry)
         self._attr_unique_id = (
             f"{coordinator.data.telemetry.device.logger_sn}_refresh_data"

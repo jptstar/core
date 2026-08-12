@@ -1,7 +1,5 @@
 """Config flow for TSUN micro-inverters."""
 
-from __future__ import annotations
-
 from ipaddress import IPv4Network
 import logging
 from typing import Any
@@ -196,6 +194,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     VERSION = 1
 
     def __init__(self) -> None:
+        """Initialize the TSUN config flow."""
         self._hosts: list[str] | None = None
         self._networks: list[IPv4Network] | None = None
         self._port = DEFAULT_PORT
@@ -223,7 +222,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 str(data[CONF_HOST]),
                 port=int(data[CONF_PORT]),
             )
-        except Exception:  # noqa: BLE001
+        except Exception:
             _LOGGER.exception("Unexpected exception while reading TSUN metadata")
             return "unknown"
         if CONF_LOGGER_SN not in data:
@@ -245,7 +244,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if automatically_detected:
                 self._request_logger_sn = True
             return "invalid_response"
-        except Exception:  # noqa: BLE001
+        except Exception:
             _LOGGER.exception("Unexpected exception while connecting to TSUN")
             return "unknown"
 
@@ -275,9 +274,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             title=f"{model} ({data[CONF_LOGGER_SN]})", data=data
         )
 
-    async def async_on_create_entry(
-        self, result: ConfigFlowResult
-    ) -> ConfigFlowResult:
+    async def async_on_create_entry(self, result: ConfigFlowResult) -> ConfigFlowResult:
         """Offer the next unconfigured device after a discovery-created entry."""
         if self._continue_after_host is None:
             return result
@@ -290,9 +287,8 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 _CONTEXT_EXCLUDED: sorted(self._excluded | {self._continue_after_host}),
             },
         )
-        if (
-            next_result.get("type") not in {"abort", "create_entry"}
-            and (flow_id := next_result.get("flow_id"))
+        if next_result.get("type") not in {"abort", "create_entry"} and (
+            flow_id := next_result.get("flow_id")
         ):
             result["next_flow"] = (config_entries.FlowType.CONFIG_FLOW, flow_id)
         return result
@@ -347,10 +343,8 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             if self._networks:
                 self._suggested_network = str(self._networks[0])
             try:
-                discovered = await async_discover_devices(
-                    self._networks, self._port
-                )
-            except (HomeAssistantError, OSError, RuntimeError, ValueError):
+                discovered = await async_discover_devices(self._networks, self._port)
+            except HomeAssistantError, OSError, RuntimeError, ValueError:
                 discovered = []
             self._hosts = self._unconfigured(discovered)
             if not self._hosts:
@@ -397,7 +391,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                     discovered = await async_discover_devices(
                         self._networks, self._port
                     )
-                except (HomeAssistantError, OSError, RuntimeError, ValueError):
+                except HomeAssistantError, OSError, RuntimeError, ValueError:
                     discovered = []
                 self._hosts = self._unconfigured(discovered)
                 if self._hosts:
@@ -427,7 +421,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                 await _async_validate(self.hass, updated, metadata)
             except TsunError:
                 errors["base"] = "cannot_connect"
-            except Exception:  # noqa: BLE001
+            except Exception:
                 _LOGGER.exception("Unexpected exception while reconfiguring TSUN")
                 errors["base"] = "unknown"
             else:
@@ -488,7 +482,5 @@ class TsunOptionsFlow(config_entries.OptionsFlow):
         }
         return self.async_show_form(
             step_id="init",
-            data_schema=self.add_suggested_values_to_schema(
-                OPTIONS_SCHEMA, defaults
-            ),
+            data_schema=self.add_suggested_values_to_schema(OPTIONS_SCHEMA, defaults),
         )

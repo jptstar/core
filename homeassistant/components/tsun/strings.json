@@ -13,27 +13,6 @@
       "unknown": "Unexpected error"
     },
     "step": {
-      "user": {
-        "menu_options": {
-          "discover": "Search the local network",
-          "manual": "Enter an address manually"
-        },
-        "title": "Connect a TSUN micro-inverter"
-      },
-      "manual": {
-        "data": {
-          "host": "Host",
-          "logger_sn": "SN",
-          "port": "Port"
-        },
-        "data_description": {
-          "host": "IP address or hostname of the micro-inverter logger.",
-          "logger_sn": "Numeric SN used for local communication. It is read automatically when the local status page is available.",
-          "port": "Local TCP port; 8899 is proposed by default."
-        },
-        "description": "Enter the local address. Home Assistant will first try to read the numeric SN automatically.",
-        "title": "Manual connection"
-      },
       "discover": {
         "data": {
           "host": "Discovered address",
@@ -55,6 +34,20 @@
         "description": "No device was found on networks visible to Home Assistant. You can analyze one additional private /24 network, for example a routed VLAN.",
         "title": "Network to analyze"
       },
+      "manual": {
+        "data": {
+          "host": "Host",
+          "logger_sn": "SN",
+          "port": "Port"
+        },
+        "data_description": {
+          "host": "IP address or hostname of the micro-inverter logger.",
+          "logger_sn": "Numeric SN used for local communication. It is read automatically when the local status page is available.",
+          "port": "Local TCP port; 8899 is proposed by default."
+        },
+        "description": "Enter the local address. Home Assistant will first try to read the numeric SN automatically.",
+        "title": "Manual connection"
+      },
       "reconfigure": {
         "data": {
           "host": "Host",
@@ -62,7 +55,65 @@
         },
         "description": "Update the local address without changing the device identity.",
         "title": "Reconfigure connection"
+      },
+      "user": {
+        "menu_options": {
+          "discover": "Search the local network",
+          "manual": "Enter an address manually"
+        },
+        "title": "Connect a TSUN micro-inverter"
       }
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "inverter_alarm": { "name": "Inverter alarm" },
+      "online": { "name": "Online" }
+    },
+    "button": {
+      "refresh_data": { "name": "Refresh data" }
+    },
+    "sensor": {
+      "ac_current": { "name": "AC current" },
+      "ac_energy_today": { "name": "AC energy today" },
+      "ac_energy_total": { "name": "AC energy total" },
+      "ac_frequency": { "name": "AC frequency" },
+      "ac_power": { "name": "AC power" },
+      "ac_voltage": { "name": "AC voltage" },
+      "alarm_code_1_raw": { "name": "Raw alarm code 1" },
+      "alarm_code_2_raw": { "name": "Raw alarm code 2" },
+      "alarm_code_3_raw": { "name": "Raw alarm code 3" },
+      "alarm_code_4_raw": { "name": "Raw alarm code 4" },
+      "alarm_global_0_raw": { "name": "Raw global alarm 0" },
+      "alarm_global_1_raw": { "name": "Raw global alarm 1" },
+      "alarm_global_2_raw": { "name": "Raw global alarm 2" },
+      "alarm_global_3_raw": { "name": "Raw global alarm 3" },
+      "alarm_secondary_0_raw": { "name": "Raw secondary alarm 0" },
+      "alarm_secondary_1_raw": { "name": "Raw secondary alarm 1" },
+      "alarm_secondary_2_raw": { "name": "Raw secondary alarm 2" },
+      "alarm_secondary_3_raw": { "name": "Raw secondary alarm 3" },
+      "communication_blocks": { "name": "Blocks received" },
+      "communication_duration": { "name": "Communication duration" },
+      "communication_failures": {
+        "name": "Consecutive communication failures"
+      },
+      "communication_last_success": { "name": "Last successful communication" },
+      "current": { "name": "PV{input} current" },
+      "dc_power_total": { "name": "Total DC power" },
+      "energy_today": { "name": "PV{input} energy today" },
+      "energy_total": { "name": "PV{input} energy total" },
+      "firmware_version": { "name": "Firmware version" },
+      "inverter_serial_number": { "name": "Micro-inverter SN" },
+      "logger_sn": { "name": "SN" },
+      "mac_address": { "name": "Logger MAC address" },
+      "power": { "name": "PV{input} power" },
+      "pv1_alarm_raw": { "name": "Raw PV1 alarm" },
+      "pv2_alarm_raw": { "name": "Raw PV2 alarm" },
+      "pv3_alarm_raw": { "name": "Raw PV3 alarm" },
+      "pv4_alarm_raw": { "name": "Raw PV4 alarm" },
+      "pv5_alarm_raw": { "name": "Raw PV5 alarm" },
+      "pv6_alarm_raw": { "name": "Raw PV6 alarm" },
+      "voltage": { "name": "PV{input} voltage" }
     }
   },
   "options": {
@@ -83,55 +134,6 @@
         "description": "Configure polling independently for normal operation, temporary errors and night/offline operation.",
         "title": "Polling settings"
       }
-    }
-  },
-  "entity": {
-    "binary_sensor": {
-      "inverter_alarm": {"name": "Inverter alarm"},
-      "online": {"name": "Online"}
-    },
-    "button": {
-      "refresh_data": {"name": "Refresh data"}
-    },
-    "sensor": {
-      "ac_current": {"name": "AC current"},
-      "ac_energy_today": {"name": "AC energy today"},
-      "ac_energy_total": {"name": "AC energy total"},
-      "ac_frequency": {"name": "AC frequency"},
-      "ac_power": {"name": "AC power"},
-      "ac_voltage": {"name": "AC voltage"},
-      "alarm_code_1_raw": {"name": "Raw alarm code 1"},
-      "alarm_code_2_raw": {"name": "Raw alarm code 2"},
-      "alarm_code_3_raw": {"name": "Raw alarm code 3"},
-      "alarm_code_4_raw": {"name": "Raw alarm code 4"},
-      "alarm_global_0_raw": {"name": "Raw global alarm 0"},
-      "alarm_global_1_raw": {"name": "Raw global alarm 1"},
-      "alarm_global_2_raw": {"name": "Raw global alarm 2"},
-      "alarm_global_3_raw": {"name": "Raw global alarm 3"},
-      "alarm_secondary_0_raw": {"name": "Raw secondary alarm 0"},
-      "alarm_secondary_1_raw": {"name": "Raw secondary alarm 1"},
-      "alarm_secondary_2_raw": {"name": "Raw secondary alarm 2"},
-      "alarm_secondary_3_raw": {"name": "Raw secondary alarm 3"},
-      "communication_blocks": {"name": "Blocks received"},
-      "communication_duration": {"name": "Communication duration"},
-      "communication_failures": {"name": "Consecutive communication failures"},
-      "communication_last_success": {"name": "Last successful communication"},
-      "current": {"name": "PV{input} current"},
-      "dc_power_total": {"name": "Total DC power"},
-      "energy_today": {"name": "PV{input} energy today"},
-      "energy_total": {"name": "PV{input} energy total"},
-      "firmware_version": {"name": "Firmware version"},
-      "inverter_serial_number": {"name": "Micro-inverter SN"},
-      "logger_sn": {"name": "SN"},
-      "mac_address": {"name": "Logger MAC address"},
-      "power": {"name": "PV{input} power"},
-      "pv1_alarm_raw": {"name": "Raw PV1 alarm"},
-      "pv2_alarm_raw": {"name": "Raw PV2 alarm"},
-      "pv3_alarm_raw": {"name": "Raw PV3 alarm"},
-      "pv4_alarm_raw": {"name": "Raw PV4 alarm"},
-      "pv5_alarm_raw": {"name": "Raw PV5 alarm"},
-      "pv6_alarm_raw": {"name": "Raw PV6 alarm"},
-      "voltage": {"name": "PV{input} voltage"}
     }
   }
 }

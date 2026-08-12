@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock
 
 from tsun_local_api import Telemetry, TsunConnectionError
 
+from homeassistant.components.tsun.coordinator import TsunDataUpdateCoordinator
 from homeassistant.core import HomeAssistant
 
 from tests.common import MockConfigEntry
@@ -18,8 +19,6 @@ async def test_three_failures_enable_night_behavior(
     telemetry: Telemetry,
 ) -> None:
     """Keep data through transient failures and go offline at the threshold."""
-    from homeassistant.components.tsun.coordinator import TsunDataUpdateCoordinator
-
     coordinator = TsunDataUpdateCoordinator(
         hass,
         mock_config_entry,

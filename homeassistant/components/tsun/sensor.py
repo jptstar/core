@@ -1,7 +1,5 @@
 """Sensors for TSUN micro-inverters."""
 
-from __future__ import annotations
-
 from dataclasses import dataclass
 from typing import Any, override
 
@@ -24,7 +22,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
 
 from . import TsunConfigEntry
-from .const import CONF_LOGGER_SN
 from .coordinator import TsunDataUpdateCoordinator
 from .entity import TsunEntity
 
@@ -74,9 +71,7 @@ SENSORS: tuple[TsunSensorEntityDescription, ...] = (
     _measurement(
         "ac_current", SensorDeviceClass.CURRENT, UnitOfElectricCurrent.AMPERE, 2
     ),
-    _measurement(
-        "ac_frequency", SensorDeviceClass.FREQUENCY, UnitOfFrequency.HERTZ, 2
-    ),
+    _measurement("ac_frequency", SensorDeviceClass.FREQUENCY, UnitOfFrequency.HERTZ, 2),
     _measurement("ac_power", SensorDeviceClass.POWER, UnitOfPower.WATT, 1),
     _measurement("dc_power_total", SensorDeviceClass.POWER, UnitOfPower.WATT, 1),
     _measurement(
@@ -270,14 +265,11 @@ async def async_setup_entry(
             return
         added_keys.update(description.key for description in descriptions)
         async_add_entities(
-            TsunSensor(coordinator, entry, description)
-            for description in descriptions
+            TsunSensor(coordinator, entry, description) for description in descriptions
         )
 
     async_add_discovered_entities()
-    entry.async_on_unload(
-        coordinator.async_add_listener(async_add_discovered_entities)
-    )
+    entry.async_on_unload(coordinator.async_add_listener(async_add_discovered_entities))
 
 
 class TsunSensor(TsunEntity, SensorEntity):
@@ -291,6 +283,7 @@ class TsunSensor(TsunEntity, SensorEntity):
         entry: TsunConfigEntry,
         description: TsunSensorEntityDescription,
     ) -> None:
+        """Initialize a TSUN sensor."""
         super().__init__(coordinator, entry)
         self.entity_description = description
         self._attr_unique_id = (

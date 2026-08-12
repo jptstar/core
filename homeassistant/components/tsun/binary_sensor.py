@@ -1,7 +1,5 @@
 """Binary sensors for TSUN micro-inverters."""
 
-from __future__ import annotations
-
 from typing import override
 
 from homeassistant.components.binary_sensor import (
@@ -41,14 +39,14 @@ class TsunConnectivitySensor(TsunEntity, BinarySensorEntity):
     def __init__(
         self, coordinator: TsunDataUpdateCoordinator, entry: TsunConfigEntry
     ) -> None:
+        """Initialize the connectivity sensor."""
         super().__init__(coordinator, entry)
-        self._attr_unique_id = (
-            f"{coordinator.data.telemetry.device.logger_sn}_online"
-        )
+        self._attr_unique_id = f"{coordinator.data.telemetry.device.logger_sn}_online"
 
     @property
     @override
     def suggested_object_id(self) -> str:
+        """Return the stable English object ID."""
         return "online"
 
     @property
@@ -66,6 +64,7 @@ class TsunAlarmSensor(TsunEntity, BinarySensorEntity):
     def __init__(
         self, coordinator: TsunDataUpdateCoordinator, entry: TsunConfigEntry
     ) -> None:
+        """Initialize the alarm sensor."""
         super().__init__(coordinator, entry)
         self._attr_unique_id = (
             f"{coordinator.data.telemetry.device.logger_sn}_inverter_alarm"
@@ -74,14 +73,17 @@ class TsunAlarmSensor(TsunEntity, BinarySensorEntity):
     @property
     @override
     def suggested_object_id(self) -> str:
+        """Return the stable English object ID."""
         return "inverter_alarm"
 
     @property
     def is_on(self) -> bool:
+        """Return whether the inverter reports an alarm."""
         return bool(self.coordinator.data.telemetry.values.get("alarm_active"))
 
     @property
     def available(self) -> bool:
+        """Return whether the complete raw alarm state is available."""
         return (
             super().available
             and self.coordinator.data.online
@@ -90,12 +92,13 @@ class TsunAlarmSensor(TsunEntity, BinarySensorEntity):
 
     @property
     def extra_state_attributes(self) -> dict[str, dict[str, int]]:
+        """Return all active raw alarm values."""
         active_values = {
             key: value
             for key, value in self.coordinator.data.telemetry.values.items()
             if isinstance(value, int)
             and value != 0
             and key != "alarm_active"
-            and (key.endswith("_raw") or key.endswith("_alarm_raw"))
+            and key.endswith(("_raw", "_alarm_raw"))
         }
         return {"active_raw_values": active_values}

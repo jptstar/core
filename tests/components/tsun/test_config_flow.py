@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, patch
 import pytest
 from tsun_local_api import LoggerMetadata, TsunConnectionError, TsunProtocolError
 
+from homeassistant.components.tsun import config_flow
 from homeassistant.components.tsun.const import (
     CONF_DISCOVERY_NETWORK,
     CONF_ERROR_SCAN_INTERVAL,
@@ -20,9 +21,9 @@ from homeassistant.const import CONF_HOST, CONF_PORT
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
-from tests.common import MockConfigEntry
-
 from .conftest import HOST, LOGGER_SN
+
+from tests.common import MockConfigEntry
 
 USER_INPUT = {CONF_HOST: HOST, CONF_PORT: 8899}
 OTHER_HOST = "192.0.2.11"
@@ -101,8 +102,6 @@ async def test_manual_logger_sn_fallback(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test manual SN input is requested only when automatic reading fails."""
-    from homeassistant.components.tsun import config_flow
-
     config_flow.async_read_logger_metadata.return_value = LoggerMetadata()
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -150,8 +149,6 @@ async def test_metadata_unknown_error_and_recovery(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test an unexpected metadata error is shown and can be retried."""
-    from homeassistant.components.tsun import config_flow
-
     config_flow.async_read_logger_metadata.side_effect = RuntimeError("unexpected")
     result = await hass.config_entries.flow.async_init(
         DOMAIN, context={"source": SOURCE_USER}
@@ -178,8 +175,6 @@ async def test_discovery_adds_devices_one_after_another(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test each discovery-created entry offers the next TSUN device."""
-    from homeassistant.components.tsun import config_flow
-
     with (
         patch.object(
             config_flow,
@@ -231,8 +226,6 @@ async def test_discovery_aborts_when_all_devices_are_configured(
     mock_config_entry: MockConfigEntry,
 ) -> None:
     """Test discovery ignores devices already represented by entries."""
-    from homeassistant.components.tsun import config_flow
-
     mock_config_entry.add_to_hass(hass)
     with (
         patch.object(
@@ -262,8 +255,6 @@ async def test_discovery_failure_offers_routed_network(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test a discovery failure falls back to the routed-network form."""
-    from homeassistant.components.tsun import config_flow
-
     with (
         patch.object(
             config_flow,
@@ -292,8 +283,6 @@ async def test_discovered_device_error_and_recovery(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test an error on a discovered device is shown and can be retried."""
-    from homeassistant.components.tsun import config_flow
-
     with (
         patch.object(
             config_flow,
@@ -331,8 +320,6 @@ async def test_routed_network_validation_and_discovery(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test invalid and valid routed VLAN input and an empty retry."""
-    from homeassistant.components.tsun import config_flow
-
     discover = AsyncMock(return_value=[])
     with (
         patch.object(config_flow, "_async_get_networks", AsyncMock(return_value=[])),
@@ -381,8 +368,6 @@ async def test_continuation_source_restores_discovery_context(
     mock_tsun_client: AsyncMock,
 ) -> None:
     """Test the internal continuation source restores networks and exclusions."""
-    from homeassistant.components.tsun import config_flow
-
     with patch.object(
         config_flow,
         "async_discover_devices",
@@ -406,8 +391,6 @@ async def test_visible_and_learned_networks(
     hass: HomeAssistant,
 ) -> None:
     """Test discovery networks come from HA adapters and configured devices."""
-    from homeassistant.components.tsun import config_flow
-
     entry = MockConfigEntry(
         domain=DOMAIN,
         data={CONF_HOST: "10.20.30.40", CONF_PORT: 8899, CONF_LOGGER_SN: LOGGER_SN},
@@ -444,8 +427,6 @@ async def test_visible_and_learned_networks(
 
 async def test_source_ip_network_fallback(hass: HomeAssistant) -> None:
     """Test the HA source address is used when no adapter network is visible."""
-    from homeassistant.components.tsun import config_flow
-
     with (
         patch.object(
             config_flow.network,

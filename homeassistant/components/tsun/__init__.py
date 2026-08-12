@@ -1,7 +1,5 @@
 """The TSUN integration."""
 
-from __future__ import annotations
-
 from tsun_local_api import LoggerMetadata, TsunClient
 
 from homeassistant.config_entries import ConfigEntry
@@ -52,14 +50,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: TsunConfigEntry) -> bool
             entry.options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL)
         ),
         error_interval=int(
-            entry.options.get(
-                CONF_ERROR_SCAN_INTERVAL, DEFAULT_ERROR_SCAN_INTERVAL
-            )
+            entry.options.get(CONF_ERROR_SCAN_INTERVAL, DEFAULT_ERROR_SCAN_INTERVAL)
         ),
         night_interval=int(
-            entry.options.get(
-                CONF_NIGHT_SCAN_INTERVAL, DEFAULT_NIGHT_SCAN_INTERVAL
-            )
+            entry.options.get(CONF_NIGHT_SCAN_INTERVAL, DEFAULT_NIGHT_SCAN_INTERVAL)
         ),
         failure_threshold=int(
             entry.options.get(CONF_FAILURE_THRESHOLD, DEFAULT_FAILURE_THRESHOLD)
@@ -77,8 +71,6 @@ async def async_unload_entry(hass: HomeAssistant, entry: TsunConfigEntry) -> boo
     return await hass.config_entries.async_unload_platforms(entry, PLATFORMS)
 
 
-async def _async_reload_entry(
-    hass: HomeAssistant, entry: TsunConfigEntry
-) -> None:
+async def _async_reload_entry(hass: HomeAssistant, entry: TsunConfigEntry) -> None:
     """Reload an entry after its connection or polling options change."""
     await hass.config_entries.async_reload(entry.entry_id)

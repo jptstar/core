@@ -2,7 +2,6 @@
 
 from unittest.mock import AsyncMock
 
-import pytest
 from tsun_local_api import TsunConnectionError
 
 from homeassistant.config_entries import ConfigEntryState

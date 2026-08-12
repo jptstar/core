@@ -5,9 +5,9 @@ from unittest.mock import AsyncMock
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 
-from tests.common import MockConfigEntry
-
 from .conftest import LOGGER_SN
+
+from tests.common import MockConfigEntry
 
 
 async def test_sensors(
@@ -21,9 +21,7 @@ async def test_sensors(
     await hass.async_block_till_done()
 
     registry = er.async_get(hass)
-    entity = registry.async_get_entity_id(
-        "sensor", "tsun", f"{LOGGER_SN}_ac_power"
-    )
+    entity = registry.async_get_entity_id("sensor", "tsun", f"{LOGGER_SN}_ac_power")
     assert entity is not None
     assert hass.states[entity].state == "1200.0"
 

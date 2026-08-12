@@ -1,19 +1,12 @@
 """Data update coordinator for TSUN micro-inverters."""
 
-from __future__ import annotations
-
 import asyncio
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 import logging
 from typing import Any
 
-from tsun_local_api import (
-    Telemetry,
-    TsunClient,
-    TsunError,
-    safe_error_details,
-)
+from tsun_local_api import Telemetry, TsunClient, TsunError, safe_error_details
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
