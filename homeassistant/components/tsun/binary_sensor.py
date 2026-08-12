@@ -14,6 +14,8 @@ from . import TsunConfigEntry
 from .coordinator import TsunDataUpdateCoordinator
 from .entity import TsunEntity
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -50,7 +52,9 @@ class TsunConnectivitySensor(TsunEntity, BinarySensorEntity):
         return "online"
 
     @property
+    @override
     def is_on(self) -> bool:
+        """Return whether the device is online."""
         return self.coordinator.data.online
 
 
@@ -77,11 +81,13 @@ class TsunAlarmSensor(TsunEntity, BinarySensorEntity):
         return "inverter_alarm"
 
     @property
+    @override
     def is_on(self) -> bool:
         """Return whether the inverter reports an alarm."""
         return bool(self.coordinator.data.telemetry.values.get("alarm_active"))
 
     @property
+    @override
     def available(self) -> bool:
         """Return whether the complete raw alarm state is available."""
         return (
@@ -91,6 +97,7 @@ class TsunAlarmSensor(TsunEntity, BinarySensorEntity):
         )
 
     @property
+    @override
     def extra_state_attributes(self) -> dict[str, dict[str, int]]:
         """Return all active raw alarm values."""
         active_values = {

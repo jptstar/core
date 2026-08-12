@@ -4,7 +4,7 @@ import asyncio
 from dataclasses import dataclass, replace
 from datetime import datetime, timedelta
 import logging
-from typing import Any
+from typing import Any, override
 
 from tsun_local_api import Telemetry, TsunClient, TsunError, safe_error_details
 
@@ -21,6 +21,8 @@ _POLL_LOCK = "poll_lock"
 
 def get_poll_lock(hass: HomeAssistant) -> asyncio.Lock:
     """Return one lock shared by all configured TSUN micro-inverters."""
+    # This process-wide lock serializes full reads across multiple config entries.
+    # pylint: disable-next=home-assistant-use-runtime-data
     domain_data = hass.data.setdefault(DOMAIN, {})
     return domain_data.setdefault(_POLL_LOCK, asyncio.Lock())
 
@@ -90,6 +92,7 @@ class TsunDataUpdateCoordinator(DataUpdateCoordinator[TsunCoordinatorData]):
             "last_error": data.last_error if data is not None else None,
         }
 
+    @override
     async def _async_update_data(self) -> TsunCoordinatorData:
         """Fetch telemetry and adapt the next polling interval."""
         try:

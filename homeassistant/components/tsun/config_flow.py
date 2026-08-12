@@ -2,7 +2,7 @@
 
 from ipaddress import IPv4Network
 import logging
-from typing import Any
+from typing import Any, cast, override
 
 from tsun_local_api import (
     LoggerMetadata,
@@ -19,8 +19,8 @@ import voluptuous as vol
 from homeassistant import config_entries
 from homeassistant.components import network
 from homeassistant.components.network import MDNS_TARGET_IP
-from homeassistant.config_entries import ConfigFlowResult
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.config_entries import ConfigFlowContext, ConfigFlowResult
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.exceptions import HomeAssistantError
 from homeassistant.helpers.aiohttp_client import async_get_clientsession
@@ -43,7 +43,6 @@ from .const import (
     CONF_LOGGER_SN,
     CONF_MAC_ADDRESS,
     CONF_NIGHT_SCAN_INTERVAL,
-    CONF_SCAN_INTERVAL,
     DEFAULT_ERROR_SCAN_INTERVAL,
     DEFAULT_FAILURE_THRESHOLD,
     DEFAULT_NIGHT_SCAN_INTERVAL,
@@ -109,6 +108,9 @@ def _network_schema(suggested: str | None, port: int) -> vol.Schema:
 
 OPTIONS_SCHEMA = vol.Schema(
     {
+        # The inverter is solar-powered and fully offline at night. Separate
+        # intervals reduce needless failures after the offline threshold.
+        # pylint: disable-next=home-assistant-config-flow-polling-field
         vol.Required(CONF_SCAN_INTERVAL): NumberSelector(
             NumberSelectorConfig(
                 min=MIN_SCAN_INTERVAL,
@@ -274,18 +276,24 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             title=f"{model} ({data[CONF_LOGGER_SN]})", data=data
         )
 
+    @override
     async def async_on_create_entry(self, result: ConfigFlowResult) -> ConfigFlowResult:
         """Offer the next unconfigured device after a discovery-created entry."""
         if self._continue_after_host is None:
             return result
         next_result = await self.hass.config_entries.flow.async_init(
             DOMAIN,
-            context={
-                "source": _SOURCE_CONTINUE,
-                _CONTEXT_NETWORKS: [str(item) for item in self._networks or []],
-                _CONTEXT_PORT: self._port,
-                _CONTEXT_EXCLUDED: sorted(self._excluded | {self._continue_after_host}),
-            },
+            context=cast(
+                ConfigFlowContext,
+                {
+                    "source": _SOURCE_CONTINUE,
+                    _CONTEXT_NETWORKS: [str(item) for item in self._networks or []],
+                    _CONTEXT_PORT: self._port,
+                    _CONTEXT_EXCLUDED: sorted(
+                        self._excluded | {self._continue_after_host}
+                    ),
+                },
+            ),
         )
         if next_result.get("type") not in {"abort", "create_entry"} and (
             flow_id := next_result.get("flow_id")
@@ -293,18 +301,19 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             result["next_flow"] = (config_entries.FlowType.CONFIG_FLOW, flow_id)
         return result
 
+    @override
     async def async_step_user(
         self, user_input: dict[str, Any] | None = None
     ) -> ConfigFlowResult:
         """Offer manual setup or user-initiated discovery."""
         if self.context.get(_CONTEXT_NETWORKS) is not None:
-            self._port = int(self.context.get(_CONTEXT_PORT, DEFAULT_PORT))
-            self._excluded.update(
-                str(host) for host in self.context.get(_CONTEXT_EXCLUDED, [])
-            )
+            self._port = cast(int, self.context.get(_CONTEXT_PORT, DEFAULT_PORT))
+            excluded = cast(list[str], self.context.get(_CONTEXT_EXCLUDED, []))
+            self._excluded.update(str(host) for host in excluded)
+            networks = cast(list[str], self.context.get(_CONTEXT_NETWORKS, []))
             self._networks = [
                 parse_discovery_network(str(value))
-                for value in self.context.get(_CONTEXT_NETWORKS, [])
+                for value in networks
             ]
             return await self.async_step_discover()
         return self.async_show_menu(step_id="user", menu_options=["discover", "manual"])
@@ -450,6 +459,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
     @staticmethod
     @callback
+    @override
     def async_get_options_flow(
         config_entry: config_entries.ConfigEntry,
     ) -> TsunOptionsFlow:

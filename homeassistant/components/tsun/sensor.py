@@ -1,7 +1,8 @@
 """Sensors for TSUN micro-inverters."""
 
 from dataclasses import dataclass
-from typing import Any, override
+from datetime import datetime
+from typing import cast, override
 
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -20,10 +21,13 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity_platform import AddConfigEntryEntitiesCallback
+from homeassistant.helpers.typing import StateType
 
 from . import TsunConfigEntry
 from .coordinator import TsunDataUpdateCoordinator
 from .entity import TsunEntity
+
+PARALLEL_UPDATES = 0
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -297,7 +301,8 @@ class TsunSensor(TsunEntity, SensorEntity):
         return self.entity_description.key
 
     @property
-    def native_value(self) -> Any:
+    @override
+    def native_value(self) -> StateType | datetime:
         """Return the latest measurement, communication or identity value."""
         data = self.coordinator.data
         device = data.telemetry.device
@@ -312,9 +317,13 @@ class TsunSensor(TsunEntity, SensorEntity):
             "firmware_version": device.firmware_version,
             "mac_address": device.mac_address,
         }
-        return special[key] if key in special else data.telemetry.values.get(key)
+        return cast(
+            StateType | datetime,
+            special[key] if key in special else data.telemetry.values.get(key),
+        )
 
     @property
+    @override
     def available(self) -> bool:
         """Retain counters and diagnostics while live readings sleep at night."""
         if not super().available:
@@ -327,6 +336,7 @@ class TsunSensor(TsunEntity, SensorEntity):
         )
 
     @property
+    @override
     def extra_state_attributes(self) -> dict[str, str] | None:
         """Expose the source register and hexadecimal raw alarm value."""
         if self.entity_description.register_address is None:

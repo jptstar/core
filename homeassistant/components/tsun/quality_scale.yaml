@@ -4,9 +4,9 @@ rules:
     status: exempt
     comment: This integration does not register any actions.
   appropriate-polling: done
-  brands: todo
+  brands: done
   common-modules: done
-  config-flow-test-coverage: todo
+  config-flow-test-coverage: done
   config-flow: done
   dependency-transparency: done
   docs-actions:
@@ -53,8 +53,10 @@ rules:
   devices: done
   entity-category:
     status: done
+    comment: Communication, identity, and raw alarm entities are diagnostic.
   entity-disabled-by-default:
     status: done
+    comment: Raw alarm registers are disabled by default until their meaning is known.
   discovery: todo
   stale-devices:
     status: exempt

@@ -10,6 +10,8 @@ from . import TsunConfigEntry
 from .coordinator import TsunDataUpdateCoordinator
 from .entity import TsunEntity
 
+PARALLEL_UPDATES = 0
+
 
 async def async_setup_entry(
     hass: HomeAssistant,
@@ -38,8 +40,10 @@ class TsunRefreshButton(TsunEntity, ButtonEntity):
     @property
     @override
     def suggested_object_id(self) -> str:
+        """Return the stable English object ID."""
         return "refresh_data"
 
+    @override
     async def async_press(self) -> None:
         """Request an update without bypassing coordinator debouncing."""
         await self.coordinator.async_request_refresh()

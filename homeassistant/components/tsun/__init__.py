@@ -3,7 +3,7 @@
 from tsun_local_api import LoggerMetadata, TsunClient
 
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_HOST, CONF_PORT, Platform
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL, Platform
 from homeassistant.core import HomeAssistant
 
 from .const import (
@@ -14,7 +14,6 @@ from .const import (
     CONF_LOGGER_SN,
     CONF_MAC_ADDRESS,
     CONF_NIGHT_SCAN_INTERVAL,
-    CONF_SCAN_INTERVAL,
     DEFAULT_ERROR_SCAN_INTERVAL,
     DEFAULT_FAILURE_THRESHOLD,
     DEFAULT_NIGHT_SCAN_INTERVAL,

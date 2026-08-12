@@ -13,11 +13,10 @@ from homeassistant.components.tsun.const import (
     CONF_FAILURE_THRESHOLD,
     CONF_LOGGER_SN,
     CONF_NIGHT_SCAN_INTERVAL,
-    CONF_SCAN_INTERVAL,
     DOMAIN,
 )
 from homeassistant.config_entries import SOURCE_USER
-from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.const import CONF_HOST, CONF_PORT, CONF_SCAN_INTERVAL
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 
