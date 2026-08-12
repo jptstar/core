@@ -287,6 +287,45 @@ async def test_discovery_failure_offers_routed_network(
     assert result["step_id"] == "discover_network"
 
 
+async def test_discovered_device_error_and_recovery(
+    hass: HomeAssistant,
+    mock_tsun_client: AsyncMock,
+) -> None:
+    """Test an error on a discovered device is shown and can be retried."""
+    from homeassistant.components.tsun import config_flow
+
+    with (
+        patch.object(
+            config_flow,
+            "_async_get_networks",
+            AsyncMock(return_value=[TEST_NETWORK]),
+        ),
+        patch.object(
+            config_flow,
+            "async_discover_devices",
+            AsyncMock(return_value=[HOST]),
+        ),
+    ):
+        result = await hass.config_entries.flow.async_init(
+            DOMAIN, context={"source": SOURCE_USER}
+        )
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {"next_step_id": "discover"}
+        )
+        mock_tsun_client.async_read.side_effect = TsunConnectionError("offline")
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_HOST: HOST, CONF_PORT: 8899}
+        )
+        assert result["errors"] == {"base": "cannot_connect"}
+
+        mock_tsun_client.async_read.side_effect = None
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"], {CONF_HOST: HOST, CONF_PORT: 8899}
+        )
+
+    assert result["type"] is FlowResultType.CREATE_ENTRY
+
+
 async def test_routed_network_validation_and_discovery(
     hass: HomeAssistant,
     mock_tsun_client: AsyncMock,
@@ -319,6 +358,14 @@ async def test_routed_network_validation_and_discovery(
         )
         assert result["errors"] == {"base": "no_devices_found"}
 
+        discover.side_effect = OSError("scan failed")
+        result = await hass.config_entries.flow.async_configure(
+            result["flow_id"],
+            {CONF_DISCOVERY_NETWORK: "192.168.44.0/24", CONF_PORT: 8899},
+        )
+        assert result["errors"] == {"base": "no_devices_found"}
+
+        discover.side_effect = None
         discover.return_value = [HOST]
         result = await hass.config_entries.flow.async_configure(
             result["flow_id"],
@@ -367,6 +414,11 @@ async def test_visible_and_learned_networks(
         unique_id=str(LOGGER_SN),
     )
     entry.add_to_hass(hass)
+    MockConfigEntry(
+        domain=DOMAIN,
+        data={CONF_HOST: "not-an-address", CONF_PORT: 8899, CONF_LOGGER_SN: 2},
+        unique_id="2",
+    ).add_to_hass(hass)
     adapters = [
         {
             "enabled": True,
