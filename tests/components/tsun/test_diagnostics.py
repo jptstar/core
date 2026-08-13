@@ -2,9 +2,7 @@
 
 from unittest.mock import AsyncMock
 
-from homeassistant.components.tsun.diagnostics import (
-    async_get_config_entry_diagnostics,
-)
+from homeassistant.components.tsun.diagnostics import async_get_config_entry_diagnostics
 from homeassistant.core import HomeAssistant
 
 from .conftest import HOST, LOGGER_SN

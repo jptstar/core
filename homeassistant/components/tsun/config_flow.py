@@ -311,10 +311,7 @@ class TsunConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             excluded = cast(list[str], self.context.get(_CONTEXT_EXCLUDED, []))
             self._excluded.update(str(host) for host in excluded)
             networks = cast(list[str], self.context.get(_CONTEXT_NETWORKS, []))
-            self._networks = [
-                parse_discovery_network(str(value))
-                for value in networks
-            ]
+            self._networks = [parse_discovery_network(str(value)) for value in networks]
             return await self.async_step_discover()
         return self.async_show_menu(step_id="user", menu_options=["discover", "manual"])
 
