@@ -26,13 +26,17 @@ async def test_sensors(
         "sensor", "tsun", f"{LOGGER_SN}_ac_power"
     )
     assert entity is not None
-    assert hass.states[entity].state == "1200.0"
+    state = hass.states.get(entity)
+    assert state is not None
+    assert state.state == "1200.0"
 
     pv6 = entity_registry.async_get_entity_id(
         "sensor", "tsun", f"{LOGGER_SN}_pv6_energy_total"
     )
     assert pv6 is not None
-    assert hass.states[pv6].state == "75.0"
+    state = hass.states.get(pv6)
+    assert state is not None
+    assert state.state == "75.0"
 
     entries = er.async_entries_for_config_entry(
         entity_registry, mock_config_entry.entry_id
@@ -43,7 +47,9 @@ async def test_sensors(
         "binary_sensor", "tsun", f"{LOGGER_SN}_online"
     )
     assert online is not None
-    assert hass.states[online].state == "on"
+    state = hass.states.get(online)
+    assert state is not None
+    assert state.state == "on"
 
     refresh = entity_registry.async_get_entity_id(
         "button", "tsun", f"{LOGGER_SN}_refresh_data"

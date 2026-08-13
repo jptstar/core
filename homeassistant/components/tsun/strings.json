@@ -19,6 +19,11 @@
           "logger_sn": "SN",
           "port": "Port"
         },
+        "data_description": {
+          "host": "Local address detected for the micro-inverter logger.",
+          "logger_sn": "Numeric SN used for local communication when it cannot be read automatically.",
+          "port": "Local TCP port; 8899 is proposed by default."
+        },
         "description": "Select a discovered TSUN device. Its numeric SN and protocol will be detected automatically.",
         "title": "Discovered devices"
       },
@@ -52,6 +57,10 @@
         "data": {
           "host": "Host",
           "port": "Port"
+        },
+        "data_description": {
+          "host": "New IP address or hostname of the micro-inverter logger.",
+          "port": "Local TCP port used by the logger."
         },
         "description": "Update the local address without changing the device identity.",
         "title": "Reconfigure connection"
