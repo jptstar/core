@@ -2,7 +2,8 @@
   "config": {
     "abort": {
       "all_devices_configured": "All discovered TSUN devices are already configured",
-      "already_configured": "This device is already configured"
+      "already_configured": "This device is already configured",
+      "reconfigure_successful": "Reconfiguration successful"
     },
     "error": {
       "cannot_connect": "Failed to connect",
